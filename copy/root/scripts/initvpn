@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+if [ -d "/etc/openvpn/keys/server" ]
+    then echo "Already inited" && exit 1
+fi
+
+# PROCESS ENV VARIABLES
+echo "Processing env variables..." && \
+
+echo ""                            >> /etc/openvpn/server.conf && \
+echo "port   ${OPENVPN_PORT}"      >> /etc/openvpn/server.conf && \
+echo "proto  ${OPENVPN_PROTO}"     >> /etc/openvpn/server.conf && \
+echo "dev    ${OPENVPN_DEV}"       >> /etc/openvpn/server.conf && \
+echo "push   \"${OPENVPN_PUSH}\""  >> /etc/openvpn/server.conf && \
+echo "server ${OPENVPN_NET_ADDR} ${OPENVPN_NET_MASK}" >> /etc/openvpn/server.conf
+
+echo ""                                     >> /root/user.template.ovpn && \
+echo "remote ${REMOTE_HOST} ${REMOTE_PORT}" >> /root/user.template.ovpn && \
+echo "dev    ${OPENVPN_DEV}"                >> /root/user.template.ovpn && \
+echo "proto  ${OPENVPN_PROTO}"              >> /root/user.template.ovpn
+
+
+# GENERATE CERTIFICATES AND KEYS
+cd /etc/openvpn/easy-rsa && \
+source vars && \
+./clean-all && \
+echo "Creating server CA..." && \
+./build-ca && \
+echo "Creating server certificate..." && \
+./build-key-server server && \
+echo "Creating DH key..." && \
+./build-dh && \
+echo "Creating TLS key..." && \
+openvpn --genkey --secret keys/ta.key && \
+mkdir -p /etc/openvpn/keys/server && \
+echo "Copying keys..." && \
+cd keys && cp server.crt server.key ca.crt dh*.pem ta.key /etc/openvpn/keys/server && \
+chmod go-rwx /etc/openvpn/easy-rsa/keys/* && \
+chmod go-rwx /etc/openvpn/keys/server/*
+
+# APPEND SERVER CONFIG FILE
+echo "Append configuration from /root/server.append.conf to /etc/openvpn/server.conf..."
+if [ -s /root/server.append.conf ]
+then
+    echo "" >> /etc/openvpn/server.conf && \
+    echo "#APPEND SECTION FROM /root/server.append.conf" >> /etc/openvpn/server.conf && \
+    cat /root/server.append.conf >> /etc/openvpn/server.conf
+fi
+
+# APPEND USER TEMPLATE FILE
+echo "Append configuration from user.append.ovpn..."
+if [ -s /root/user.append.ovpn ]
+then
+    echo "" >> /root/user.template.ovpn && \
+    echo "#APPEND SECTION FROM /root/user.append.ovpn" >> /root/user.template.ovpn && \
+    cat /root/user.append.ovpn >> /root/user.template.ovpn
+fi
+
+echo "DONE"

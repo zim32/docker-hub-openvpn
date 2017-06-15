@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+if [ ! -d "/etc/openvpn/keys/server" ]
+    then echo "Container is not inited. Run initvpn first" && exit 1
+fi
+
+# DELETE SECTION
+rm -rf /etc/openvpn/keys/user
+rm -rf /etc/openvpn/keys/user.zip
+
+# CREATE SECTION
+cd /etc/openvpn/easy-rsa && \
+source vars && \
+./build-key user && \
+mkdir -p /etc/openvpn/keys/user && \
+cd keys && cp user.crt user.key ca.crt ta.key /etc/openvpn/keys/user/. && \
+cp /root/user.template.ovpn /etc/openvpn/keys/user/config.ovpn && \
+cd /etc/openvpn/keys && \
+zip -r user.zip user
