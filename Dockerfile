@@ -7,7 +7,6 @@ ENV OPENVPN_PORT        1194
 ENV OPENVPN_DEV         tun
 ENV OPENVPN_NET_ADDR    10.8.0.0
 ENV OPENVPN_NET_MASK    255.255.255.0
-ENV OPENVPN_PUSH        "redirect-gateway def1 bypass-dhcp"
 ENV ALLOW_INET          true
 
 RUN \

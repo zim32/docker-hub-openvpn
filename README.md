@@ -1,5 +1,7 @@
 Yet another OpenVPN container. Designed to use bridged network mode.
 
+#### General usage
+
 Usage example using docker-compose
 
 ```
@@ -23,7 +25,6 @@ services:
 * OPENVPN_DEV     - device mode. Default: tun
 * OPENVPN_NET_ADDR  - vpn network ip.   Default: "10.8.0.0"
 * OPENVPN_NET_MASK  - vpn network mask. Default: "255.255.255.0"
-* OPENVPN_PUSH    - initial push command. Default: "redirect-gateway def1 bypass-dhcp"
 * ALLOW_INET      - whether to provide internet to clients. If true, init script will create needed iptables rules. Default: true
 
 2) Run service
@@ -63,10 +64,22 @@ And complete all steps
 If you need another user certificate just repeat steps 4-7. **Don't forget to change user name and email in generated certificate**
 
 There are two important files: **/root/server.append.conf** and **/root/user.append.ovpn**. Content from this files is appended to
-*/etc/openvpn/server.conf* and */root/user.template.ovpn* respectively **during step 3**. Use them (create and mount inside container) 
-if you want to add some configuration to your server or client
-configuration (f.e. to push custom routes etc.)
+*/etc/openvpn/server.conf* and */root/user.template.ovpn* respectively **during step 3**. Use them (create and mount inside container) if you want to add some configuration to all your server or all clients configuration (f.e. to push custom routes etc.)
+
+#### Profiles
+
+There are also so called client **profiles**. They are located in folder /root/profiles/**profile_name**.ovpn, where profile_name is first argument of usercert command.
+This files will be appended while generating client's certificates.
+Two profiles exists by default: all-traffic and local-only.
+
+The first one will redirect all client's traffic to OpenVPN server.  
+The second one is for vpn network only.
+ 
+You can mount /root/profiles folder and add custom profiles if you want.
+
+#### Notes
 
 Nothing is mounted by default in this container. So if you want to persist you configuration you can mount /etc/openvpn directory to persist container recreation.
+But **keep this folder is a safe place** in this case.
 
 By default client-to-client is disabled. If you need it use /root/server.append.conf file. Put "client-to-client" there.

@@ -7,12 +7,11 @@ fi
 # PROCESS ENV VARIABLES
 echo "Processing env variables..." && \
 
-echo ""                            >> /etc/openvpn/server.conf && \
-echo "port   ${OPENVPN_PORT}"      >> /etc/openvpn/server.conf && \
-echo "proto  ${OPENVPN_PROTO}"     >> /etc/openvpn/server.conf && \
-echo "dev    ${OPENVPN_DEV}"       >> /etc/openvpn/server.conf && \
-echo "push   \"${OPENVPN_PUSH}\""  >> /etc/openvpn/server.conf && \
-echo "server ${OPENVPN_NET_ADDR} ${OPENVPN_NET_MASK}" >> /etc/openvpn/server.conf
+echo ""                                                 >> /etc/openvpn/server.conf && \
+echo "port   ${OPENVPN_PORT}"                           >> /etc/openvpn/server.conf && \
+echo "proto  ${OPENVPN_PROTO}"                          >> /etc/openvpn/server.conf && \
+echo "dev    ${OPENVPN_DEV}"                            >> /etc/openvpn/server.conf && \
+echo "server ${OPENVPN_NET_ADDR} ${OPENVPN_NET_MASK}"   >> /etc/openvpn/server.conf
 
 echo ""                                     >> /root/user.template.ovpn && \
 echo "remote ${REMOTE_HOST} ${REMOTE_PORT}" >> /root/user.template.ovpn && \
